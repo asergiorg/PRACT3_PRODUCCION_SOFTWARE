@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import date
+from core.domain_error import EmptyTitleError
 
 from core.domain_error import (
     InvalidAmountError,
@@ -27,3 +28,6 @@ class Expense:
             raise InvalidExpenseDateError(
                 "La fecha del gasto no puede ser posterior a hoy"
             )
+        
+        if not self.title.strip():
+            raise EmptyTitleError("El título del gasto no puede estar vacío")
