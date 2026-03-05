@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from collections import defaultdict
 from core.expense import Expense
 import abc
@@ -30,7 +30,7 @@ class ExpenseService:
         description: str = "",
         expense_date: date = None,
     ) -> Expense:
-        if expense_date == None:
+        if expense_date is None:
             expense_date = date.today()
         expense = Expense(
             id=self._next_id,
@@ -68,18 +68,20 @@ class ExpenseService:
         return self._repository.list_all()
 
     def total_amount(self) -> float:
-        """
-        # FIXME:
-        Debería de devolver la suma de los amounts de todos los Expenses, ahora mismo parece devolver 0 solamente.
-        :return:
-        """
         return sum(expense.amount for expense in self._repository.list_all())
 
     def total_by_month(self) -> dict[str, float]:
-        totals = defaultdict(float)
+        totals: defaultdict[str, float] = defaultdict(float)
 
         for expense in self._repository.list_all():
             key = expense.expense_date.strftime("%Y-%m")
             totals[key] += expense.amount
 
         return dict(totals)
+
+    def get_month_total(self, month_name: str) -> float:
+        totals = self.total_by_month()
+        current_year = datetime.now().year
+        month_number = datetime.strptime(month_name, "%B").month
+        month_key = f"{current_year}-{month_number:02d}"
+        return totals.get(month_key, 0.0)
